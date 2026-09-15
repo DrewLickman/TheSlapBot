@@ -1,0 +1,21 @@
+{
+  "name": "the-slap-bot",
+  "version": "0.1.0",
+  "description": "Create pear-phone update images from Discord slash commands",
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "start": "node src/bot.js",
+    "register": "node scripts/register-commands.js",
+    "test": "node --test",
+    "check": "node --check src/bot.js && node --check src/slap-command.js && node --check src/validation.js && node --check src/avatar.js && node --check src/render.js && node --check src/preview-store.js && node --check src/preview-components.js && node --check src/post-errors.js && node --check scripts/register-commands.js"
+  },
+  "dependencies": {
+    "discord.js": "14.27.0",
+    "dotenv": "17.4.2",
+    "sharp": "0.35.4"
+  }
+}
