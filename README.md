@@ -4,7 +4,7 @@ A local Discord bot that turns a short update, a feeling, and the user's Discord
 
 ## Requirements
 
-- Node.js 22 or newer
+- Node.js 22.12 or newer
 - A Discord application and bot token
 - A Discord server where you can install the bot
 
