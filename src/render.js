@@ -2,6 +2,7 @@ import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import sharp from 'sharp';
 import { normalizeSlapInput } from './validation.js';
+import { recolorPhone } from './phone-colors.js';
 
 const TEMPLATE_PATH = fileURLToPath(new URL('../assets/pear-phone-template.png', import.meta.url));
 const FONT_PATH = fileURLToPath(new URL('../assets/fonts/Play-Regular.ttf', import.meta.url));
@@ -53,7 +54,7 @@ async function renderText(text, { width, height, color, fontSizes, wrap = 'word-
   throw new RangeError('That text is too long to fit legibly. Shorten it and try again.');
 }
 
-export async function renderSlap({ body, feeling, avatarBuffer, templateBuffer } = {}) {
+export async function renderSlap({ body, feeling, avatarBuffer, templateBuffer, color } = {}) {
   const normalized = normalizeSlapInput(body, feeling);
   if (!Buffer.isBuffer(avatarBuffer) || avatarBuffer.length === 0) {
     throw new TypeError('An avatar image is required.');
@@ -86,11 +87,12 @@ export async function renderSlap({ body, feeling, avatarBuffer, templateBuffer }
       .toBuffer(),
   ]);
 
-  return sharp(template)
+  const tiltedFeeling = await sharp(feelingOverlay).rotate(-1.8, { background: '#00000000' }).png().toBuffer({ resolveWithObject: true });
+  return sharp(color ? await recolorPhone(template, color) : template)
     .composite([
       { input: avatar, left: AVATAR_BOX.left, top: AVATAR_BOX.top },
       { input: bodyOverlay, left: BODY_BOX.left, top: BODY_BOX.top },
-      { input: feelingOverlay, left: FEELING_BOX.left, top: FEELING_BOX.top },
+      { input: tiltedFeeling.data, left: FEELING_BOX.left, top: 333 - tiltedFeeling.info.height },
     ])
     .png()
     .toBuffer();

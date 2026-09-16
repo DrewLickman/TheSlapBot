@@ -1,5 +1,14 @@
 export const PREVIEW_TTL_MS = 10 * 60 * 1000;
 
+function releaseColorData(entry) {
+  entry.avatarBuffer = null;
+  entry.input = null;
+  if (entry.colorInteraction) {
+    entry.colorInteraction.editReply({ content: 'This preview is closed.', components: [] }).catch(() => {});
+    entry.colorInteraction = null;
+  }
+}
+
 export function isPreviewOwner(preview, userId) {
   return Boolean(preview && typeof userId === 'string' && preview.ownerId === userId);
 }
@@ -36,6 +45,7 @@ export class PreviewStore {
       this.#entries.delete(messageId);
       entry.state = 'expired';
       entry.buffer = null;
+      releaseColorData(entry);
       Promise.resolve()
         .then(() => this.onExpire(messageId, entry))
         .catch((error) => this.onError(error));
@@ -66,6 +76,7 @@ export class PreviewStore {
     entry.timer = null;
     entry.state = state;
     entry.buffer = null;
+    releaseColorData(entry);
     return entry;
   }
 

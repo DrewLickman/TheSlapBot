@@ -33,6 +33,10 @@ export async function handlePreviewButton({ interaction, client, previews }) {
     return true;
   }
 
+  if (preview.state !== 'preview') {
+    await interaction.reply({ content: 'An update or post is already in progress. Please wait.', flags: MessageFlags.Ephemeral });
+    return true;
+  }
   if (interaction.customId === CANCEL_BUTTON) {
     previews.delete(messageId, 'cancelled');
     await interaction.update({

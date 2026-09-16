@@ -107,7 +107,7 @@ test('posting sends the preview image once, disables its controls, and releases 
   assert.equal(previews.size, 0);
   assert.deepEqual(
     interaction.updates[0].components[0].toJSON().components.map(({ disabled }) => disabled),
-    [true, true],
+    [true, true, true],
   );
   assert.match(interaction.edits[0].content, /Posted\./);
   assert.deepEqual(interaction.edits[0].components, []);
@@ -139,7 +139,7 @@ test('simultaneous Post clicks claim the preview once and publish only one messa
   await started;
   await handlePreviewButton({ interaction: secondInteraction, client, previews });
   assert.equal(sendCalls, 1);
-  assert.match(secondInteraction.replies[0].content, /already being posted/);
+  assert.match(secondInteraction.replies[0].content, /already in progress/);
 
   resolveSend({ url: 'https://discord.com/channels/1/2/3' });
   await firstPost;

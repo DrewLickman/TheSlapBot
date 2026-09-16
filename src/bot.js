@@ -11,6 +11,8 @@ import { handlePreviewButton } from './preview-actions.js';
 import { renderSlap } from './render.js';
 import { PreviewStore } from './preview-store.js';
 import { normalizeSlapInput } from './validation.js';
+import { randomPhoneColor } from './phone-colors.js';
+import { handleColorInteraction } from './color-actions.js';
 
 const PREVIEW_IMAGE_NAME = 'slap-preview.png';
 
@@ -59,7 +61,8 @@ if (!DISCORD_TOKEN?.trim()) {
       const avatarMs = performance.now() - avatarStartedAt;
 
       const renderStartedAt = performance.now();
-      const imageBuffer = await renderSlap({ ...input, avatarBuffer });
+      const color = randomPhoneColor();
+      const imageBuffer = await renderSlap({ ...input, avatarBuffer, color });
       const renderMs = performance.now() - renderStartedAt;
 
       const uploadStartedAt = performance.now();
@@ -74,6 +77,9 @@ if (!DISCORD_TOKEN?.trim()) {
         ownerId: interaction.user.id,
         channelId: interaction.channelId,
         buffer: imageBuffer,
+        input,
+        avatarBuffer,
+        color,
         commandInteraction: interaction,
       });
       console.log(
@@ -96,7 +102,7 @@ if (!DISCORD_TOKEN?.trim()) {
     }
   }
 
-  client.once('ready', (readyClient) => {
+  client.once('clientReady', (readyClient) => {
     console.log(`[TheSlapBot] Online as ${readyClient.user.tag}.`);
   });
   client.on('error', (error) => {
@@ -106,6 +112,8 @@ if (!DISCORD_TOKEN?.trim()) {
     try {
       if (interaction.isChatInputCommand() && interaction.commandName === 'slap') {
         await handleSlap(interaction);
+      } else if (await handleColorInteraction({ interaction, previews })) {
+        // Color buttons, palette selections, and custom-color modal submissions.
       } else if (interaction.isButton()) {
         await handlePreviewButton({ interaction, client, previews });
       }
