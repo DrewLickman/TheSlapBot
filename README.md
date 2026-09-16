@@ -8,7 +8,7 @@ A local Discord bot that turns a short update, a feeling, and the user's Discord
 - A Discord application and bot token
 - A Discord server where you can install the bot
 
-Create a Discord application in the [Discord Developer Portal](https://discord.com/developers/applications), add a bot, and keep its token private. Invite it to a test server with the `bot` and `applications.commands` scopes. Grant **Send Messages** and **Attach Files** in the channel where it will post. The bot uses the Gateway and needs no public web endpoint or privileged intents.
+Create a Discord application in the [Discord Developer Portal](https://discord.com/developers/applications), add a bot, and keep its token private. Invite it to a test server with the `bot` and `applications.commands` scopes. Grant **View Channel**, **Send Messages**, and **Attach Files** in the channel where it will post. The bot uses the Gateway and needs no public web endpoint or privileged intents.
 
 ## Run locally
 

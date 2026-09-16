@@ -1,6 +1,9 @@
 export function getPostFailureMessage(error) {
+  if (error?.code === 50001) {
+    return 'I cannot access that channel. Give the bot **View Channel**, **Send Messages**, and **Attach Files** permission, then run `/slap` again.';
+  }
   if (error?.code === 50013 || error?.status === 403) {
-    return 'I could not post in that channel. Give the bot **Send Messages** and **Attach Files** permission, then run `/slap` again.';
+    return 'I could not post in that channel. Give the bot **View Channel**, **Send Messages**, and **Attach Files** permission, then run `/slap` again.';
   }
   if (error?.status === 404) {
     return 'That channel is no longer available. Run `/slap` in a channel where the bot can post.';

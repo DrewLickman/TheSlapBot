@@ -4,6 +4,14 @@ import { getPostFailureMessage } from '../src/post-errors.js';
 
 test('explains the channel permissions needed after a known permission denial', () => {
   const message = getPostFailureMessage({ code: 50013, status: 403 });
+  assert.match(message, /View Channel/);
+  assert.match(message, /Send Messages/);
+  assert.match(message, /Attach Files/);
+});
+
+test('explains the channel permissions needed after a missing-access response', () => {
+  const message = getPostFailureMessage({ code: 50001, status: 403 });
+  assert.match(message, /View Channel/);
   assert.match(message, /Send Messages/);
   assert.match(message, /Attach Files/);
 });
