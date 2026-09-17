@@ -8,5 +8,8 @@ test('registers /slap with required, bounded text and feeling fields', () => {
   assert.deepEqual(command.options.map(({ name, required, max_length }) => ({ name, required, max_length })), [
     { name: 'text', required: true, max_length: 280 },
     { name: 'feeling', required: true, max_length: 32 },
+    { name: 'color', required: false, max_length: 32 },
+    { name: 'media', required: false, max_length: undefined },
+    { name: 'media_link', required: false, max_length: 2048 },
   ]);
 });

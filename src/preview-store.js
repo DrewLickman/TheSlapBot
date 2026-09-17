@@ -2,6 +2,7 @@ export const PREVIEW_TTL_MS = 10 * 60 * 1000;
 
 function releaseColorData(entry) {
   entry.avatarBuffer = null;
+  entry.mediaBuffer = null;
   entry.input = null;
   if (entry.colorInteraction) {
     entry.colorInteraction.editReply({ content: 'This preview is closed.', components: [] }).catch(() => {});

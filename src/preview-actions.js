@@ -1,5 +1,6 @@
+import { imageFilename } from './media.js';
 import { AttachmentBuilder, MessageFlags } from 'discord.js';
-import { CANCEL_BUTTON, POST_BUTTON, buildPreviewButtons } from './preview-components.js';
+import { CANCEL_BUTTON, POST_BUTTON, buildPreviewComponents } from './preview-components.js';
 import { getPostFailureMessage } from './post-errors.js';
 import { isPreviewOwner } from './preview-store.js';
 
@@ -40,7 +41,7 @@ export async function handlePreviewButton({ interaction, client, previews }) {
   if (interaction.customId === CANCEL_BUTTON) {
     previews.delete(messageId, 'cancelled');
     await interaction.update({
-      content: 'Canceled. Run `/slap` whenever you want another preview.',
+      content: 'Canceled.',
       attachments: [],
       components: [],
     });
@@ -57,14 +58,14 @@ export async function handlePreviewButton({ interaction, client, previews }) {
 
   let posted;
   try {
-    await interaction.update({ content: 'Posting your image…', components: [buildPreviewButtons(true)] });
+    await interaction.update({ content: 'Posting your image…', components: buildPreviewComponents(true) });
     const channel = await client.channels.fetch(preview.channelId);
     if (!channel?.isTextBased?.() || typeof channel.send !== 'function') {
       throw Object.assign(new Error('The channel cannot receive messages.'), { status: 404 });
     }
 
     posted = await channel.send({
-      files: [new AttachmentBuilder(preview.buffer, { name: 'slap.png' })],
+      files: [new AttachmentBuilder(preview.buffer, { name: imageFilename(preview.buffer) })],
       allowedMentions: { parse: [] },
     });
   } catch (error) {

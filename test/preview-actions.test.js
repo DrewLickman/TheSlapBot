@@ -56,7 +56,7 @@ test('cancel removes the in-memory image and clears preview attachments and cont
   assert.equal(sendCalls, 0);
   assert.deepEqual(interaction.updates[0].attachments, []);
   assert.deepEqual(interaction.updates[0].components, []);
-  assert.match(interaction.updates[0].content, /Canceled/);
+  assert.equal(interaction.updates[0].content, 'Canceled.');
 });
 
 test('only the preview owner can post it', async () => {
@@ -106,8 +106,8 @@ test('posting sends the preview image once, disables its controls, and releases 
   assert.equal(entry.buffer, null);
   assert.equal(previews.size, 0);
   assert.deepEqual(
-    interaction.updates[0].components[0].toJSON().components.map(({ disabled }) => disabled),
-    [true, true, true],
+    interaction.updates[0].components.flatMap(row => row.toJSON().components).map(({ disabled }) => disabled),
+    [true, true, true, true],
   );
   assert.match(interaction.edits[0].content, /Posted\./);
   assert.deepEqual(interaction.edits[0].components, []);

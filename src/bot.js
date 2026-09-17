@@ -6,15 +6,16 @@ import {
   MessageFlags,
 } from 'discord.js';
 import { fetchAvatarBuffer } from './avatar.js';
-import { buildPreviewButtons } from './preview-components.js';
+import { fetchMediaBuffer, selectMediaSource, imageFilename, resolveMessageMedia } from './media.js';
+import { buildPreviewComponents } from './preview-components.js';
 import { handlePreviewButton } from './preview-actions.js';
 import { renderSlap } from './render.js';
 import { PreviewStore } from './preview-store.js';
 import { normalizeSlapInput } from './validation.js';
-import { randomPhoneColor } from './phone-colors.js';
+import { commandPhoneColor } from './phone-colors.js';
 import { handleColorInteraction } from './color-actions.js';
 
-const PREVIEW_IMAGE_NAME = 'slap-preview.png';
+
 
 const { DISCORD_TOKEN } = process.env;
 if (!DISCORD_TOKEN?.trim()) {
@@ -44,7 +45,11 @@ if (!DISCORD_TOKEN?.trim()) {
 
   async function handleSlap(interaction) {
     let input;
+    let color;
+    let mediaSource;
     try {
+      mediaSource = selectMediaSource(interaction.options.getAttachment('media'), interaction.options.getString('media_link'));
+      color = commandPhoneColor(interaction.options.getString('color'));
       input = normalizeSlapInput(
         interaction.options.getString('text', true),
         interaction.options.getString('feeling', true),
@@ -61,15 +66,15 @@ if (!DISCORD_TOKEN?.trim()) {
       const avatarMs = performance.now() - avatarStartedAt;
 
       const renderStartedAt = performance.now();
-      const color = randomPhoneColor();
-      const imageBuffer = await renderSlap({ ...input, avatarBuffer, color });
+      const mediaBuffer = await fetchMediaBuffer(await resolveMessageMedia(mediaSource, { client, interaction }));
+      const imageBuffer = await renderSlap({ ...input, avatarBuffer, mediaBuffer, color });
       const renderMs = performance.now() - renderStartedAt;
 
       const uploadStartedAt = performance.now();
       const previewMessage = await interaction.editReply({
         content: 'Here’s your preview. Only you can see it; press **Post** to send the image to this channel.',
-        files: [new AttachmentBuilder(imageBuffer, { name: PREVIEW_IMAGE_NAME })],
-        components: [buildPreviewButtons()],
+        files: [new AttachmentBuilder(imageBuffer, { name: imageFilename(imageBuffer, 'slap-preview') })],
+        components: buildPreviewComponents(),
       });
       const uploadMs = performance.now() - uploadStartedAt;
 
@@ -79,6 +84,7 @@ if (!DISCORD_TOKEN?.trim()) {
         buffer: imageBuffer,
         input,
         avatarBuffer,
+        mediaBuffer,
         color,
         commandInteraction: interaction,
       });

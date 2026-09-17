@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import sharp from 'sharp';
-import { renderLayout, renderSlap } from '../src/render.js';
+import { renderLayout, renderSlap, chooseMediaLayout } from '../src/render.js';
 
 const avatar = await sharp({
   create: { width: 160, height: 80, channels: 3, background: { r: 27, g: 96, b: 225 } },
@@ -42,4 +42,14 @@ test('rejects text that exceeds the supported command limit', async () => {
     renderSlap({ body: 'x'.repeat(281), feeling: 'Fine', avatarBuffer: avatar }),
     /280 characters/,
   );
+});
+
+test('media occupies the right of the text without changing image dimensions', async () => {
+  const media = await sharp({ create: { width: 100, height: 100, channels: 3, background: '#ee1122' } }).png().toBuffer();
+  const output = await renderSlap({ body: 'A photo from today!', feeling: 'Happy', avatarBuffer: avatar, mediaBuffer: media });
+  const layout = await chooseMediaLayout('A photo from today!', 100, 100);
+  const pixel = await sharp(output).extract({ left: layout.media.left + 10, top: layout.media.top + 10, width: 1, height: 1 }).removeAlpha().raw().toBuffer();
+  assert.deepEqual([...pixel], [238, 17, 34]);
+  assert.ok(layout.media.width >= 126);
+  assert.equal((await sharp(output).metadata()).width, 887);
 });

@@ -15,6 +15,15 @@ export function randomPhoneColor() {
   return PHONE_COLORS[Math.floor(Math.random() * PHONE_COLORS.length)].value;
 }
 
+export function commandPhoneColor(value) {
+  if (value == null) return randomPhoneColor();
+  const named = PHONE_COLORS.find(({ label }) => label.toLowerCase() === value.trim().toLowerCase());
+  if (named) return named.value;
+  try { return normalizeColor(value); } catch {
+    throw new RangeError('Use green, teal, blue, purple, pink, red, orange, yellow, or a six-digit hex such as #FF8800.');
+  }
+}
+
 // Fixed template shell outline. The inner cutout protects the screen and controls.
 const shellMask = Buffer.from(`<svg width="887" height="499"><path fill="white" stroke="white" stroke-width="18" stroke-linejoin="round" fill-rule="evenodd" d="M75 241 C77 165 164 127 253 88 C361 45 506 6 578 10 C666 6 742 60 783 133 C820 206 817 300 791 368 C765 436 685 478 583 480 C502 480 448 428 357 401 C284 378 229 405 164 394 C93 386 69 325 75 241 Z M94 243 C94 184 172 143 262 106 C360 68 502 26 577 28 C646 26 681 69 696 121 C711 175 711 245 700 303 C690 380 656 442 588 457 C511 476 449 416 365 381 C282 347 237 375 170 373 C111 372 89 319 94 243 Z"/></svg>`);
 let maskPromise;

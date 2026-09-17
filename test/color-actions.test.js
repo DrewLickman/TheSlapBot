@@ -4,7 +4,7 @@ import { handleColorInteraction } from '../src/color-actions.js';
 import { PreviewStore } from '../src/preview-store.js';
 import { handlePreviewButton } from '../src/preview-actions.js';
 
-function setup(customId = 'slap:palette:p') {
+function setup(customId = 'slap:palette') {
   const edits = [];
   const previews = new PreviewStore();
   const entry = previews.create('p', { ownerId: 'owner', color: '#ff8800', input: { body: 'hello', feeling: 'happy' }, avatarBuffer: Buffer.from('avatar'), buffer: Buffer.from('old'), commandInteraction: { editReply: async (data) => edits.push(data) } });
@@ -12,18 +12,19 @@ function setup(customId = 'slap:palette:p') {
   return { previews, entry, interaction, edits };
 }
 
-test('color picker is private and offers palette plus custom hex', async () => {
-  const ctx = setup('slap:color');
+test('custom hex opens directly from the preview', async () => {
+  const ctx = setup('slap:hex');
   await handleColorInteraction(ctx);
-  assert.equal(ctx.interaction.replies[0].flags, 64);
-  assert.equal(ctx.interaction.replies[0].components.length, 2);
+  assert.equal(ctx.interaction.modal.toJSON().custom_id, 'slap:hexsubmit:p');
+  assert.equal(ctx.interaction.replies.length, 0);
   ctx.previews.clear();
 });
 
 test('color change replaces original image and stored post buffer without extending expiry', async () => {
   const ctx = setup();
   const expires = ctx.entry.expiresAt;
-  await handleColorInteraction({ ...ctx, render: async () => Buffer.from('new') });
+  ctx.entry.mediaBuffer = Buffer.from('media');
+  await handleColorInteraction({ ...ctx, render: async (input) => { assert.equal(input.mediaBuffer, ctx.entry.mediaBuffer); return Buffer.from('new'); } });
   assert.equal(ctx.entry.buffer.toString(), 'new');
   assert.equal(ctx.entry.color, '#248cff');
   assert.equal(ctx.entry.expiresAt, expires);
@@ -64,7 +65,7 @@ test('in-flight color changes block post and cancel; expiry prevents stale image
 test('ambiguous image replacement failure closes preview to prevent a mismatched post', async () => {
   const ctx = setup();
   ctx.entry.commandInteraction.editReply = async () => { throw new Error('timeout'); };
-  await handleColorInteraction({ ...ctx, render: async () => Buffer.from('new') });
+  await handleColorInteraction({ ...ctx, render: async (input) => { assert.equal(input.mediaBuffer, ctx.entry.mediaBuffer); return Buffer.from('new'); } });
   assert.equal(ctx.previews.size, 0);
   assert.equal(ctx.entry.buffer, null);
 });
