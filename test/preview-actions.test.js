@@ -15,9 +15,14 @@ function makeInteraction(customId, userId = 'owner') {
     updates: [],
     replies: [],
     edits: [],
+    deferUpdates: 0,
     async update(payload) {
       this.updates.push(payload);
       this.replied = true;
+    },
+    async deferUpdate() {
+      this.deferUpdates += 1;
+      this.deferred = true;
     },
     async reply(payload) {
       this.replies.push(payload);
@@ -35,11 +40,12 @@ function makePreviewStore() {
     ownerId: 'owner',
     channelId: 'channel-1',
     buffer: Buffer.from('png-data'),
+    commandInteraction: { deleteReply: async () => { entry.deleteReplyCalls = (entry.deleteReplyCalls ?? 0) + 1; } },
   });
   return { previews, entry };
 }
 
-test('cancel removes the in-memory image and clears preview attachments and controls', async () => {
+test('cancel removes the in-memory image and deletes the private preview without a replacement message', async () => {
   const { previews, entry } = makePreviewStore();
   const interaction = makeInteraction(CANCEL_BUTTON);
   let sendCalls = 0;
@@ -54,9 +60,10 @@ test('cancel removes the in-memory image and clears preview attachments and cont
   assert.equal(entry.state, 'cancelled');
   assert.equal(entry.buffer, null);
   assert.equal(sendCalls, 0);
-  assert.deepEqual(interaction.updates[0].attachments, []);
-  assert.deepEqual(interaction.updates[0].components, []);
-  assert.equal(interaction.updates[0].content, 'Canceled.');
+  assert.equal(interaction.deferUpdates, 1);
+  assert.equal(entry.deleteReplyCalls, 1);
+  assert.deepEqual(interaction.updates, []);
+  assert.deepEqual(interaction.replies, []);
 });
 
 test('only the preview owner can post it', async () => {

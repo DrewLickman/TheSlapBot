@@ -42,4 +42,4 @@ When `color` is omitted, each new preview starts with a random phone color from 
 
 Run `npm test` for the offline test suite. A live Discord test also requires a configured bot and test server.
 
-Discord external-media proxy links (images-ext-1/2.discordapp.net) and MP4 uploads are supported. MP4 clips up to 12 seconds and 10 MB become silent, looping GIFs at 10 frames per second. Conversion uses the bundled ffmpeg-static dependency; the phone and text stay static.
+Discord external-media proxy links (images-ext-1/2.discordapp.net) and MP4 uploads are supported. MP4 clips up to 12 seconds and 10 MB become silent, looping GIFs at 10 frames per second. Conversion uses the bundled ffmpeg-static dependency; the phone and text stay static. Media now chooses the largest readable fit beside or below the text, preserving its aspect ratio and animation.

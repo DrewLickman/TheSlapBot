@@ -40,11 +40,8 @@ export async function handlePreviewButton({ interaction, client, previews }) {
   }
   if (interaction.customId === CANCEL_BUTTON) {
     previews.delete(messageId, 'cancelled');
-    await interaction.update({
-      content: 'Canceled.',
-      attachments: [],
-      components: [],
-    });
+    await interaction.deferUpdate();
+    await Promise.resolve(preview.commandInteraction?.deleteReply?.()).catch(() => {});
     return true;
   }
 
