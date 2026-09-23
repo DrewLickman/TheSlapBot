@@ -28,6 +28,10 @@ Global registration makes `/slap` available automatically in every server that i
 
 [Add TheSlap.com to a server](https://discord.com/oauth2/authorize?client_id=1549571448371286137&integration_type=0&scope=bot%20applications.commands&permissions=35840). Select the destination server and finish authorization. This requests View Channel, Send Messages, and Attach Files. The bot must be installed in the server and its local process must be online. Server/channel permission overrides can restrict command use or posting.
 
+## Local health
+
+The bot listens on `http://127.0.0.1:4320/health` for the local Server Manager. Set `HEALTH_PORT` to use another local port. The endpoint returns HTTP 200 only when Discord is connected and Sharp and the bundled ffmpeg executable are usable; otherwise it returns HTTP 503 with the status of each dependency. It binds only to localhost and does not expose credentials.
+
 ## Use
 
 Run `/slap` with `text` (up to 280 characters) and `feeling` (up to 32 characters). The bot makes a private preview using your server avatar when available, then your account avatar, and finally Discord's default avatar. Press **Post** to publish the preview or **Cancel** to discard it. Previews expire after 10 minutes. The bot holds pending preview images in memory and does not keep a message history.

@@ -14,6 +14,7 @@ import { PreviewStore } from './preview-store.js';
 import { normalizeSlapInput } from './validation.js';
 import { commandPhoneColor } from './phone-colors.js';
 import { handleColorInteraction } from './color-actions.js';
+import { startHealthServer } from './health.js';
 
 
 
@@ -134,12 +135,20 @@ if (!DISCORD_TOKEN?.trim()) {
     }
   });
 
+  const healthServer = await startHealthServer(client);
   const shutDown = async () => {
     previews.clear();
+    healthServer.close();
     client.destroy();
   };
   process.once('SIGINT', shutDown);
   process.once('SIGTERM', shutDown);
 
-  await client.login(DISCORD_TOKEN);
+  try {
+    await client.login(DISCORD_TOKEN);
+  } catch (error) {
+    healthServer.close();
+    client.destroy();
+    throw error;
+  }
 }
